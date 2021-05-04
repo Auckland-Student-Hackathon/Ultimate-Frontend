@@ -16,8 +16,6 @@ jobs:
           node-version: 12
       - name: Install dependencies
         run: npm ci
-      - name: Install client dependencies
-        run: npm run client-install
       - name: Run linter
         run: npm run lint --if-present
       - name: Run tests
