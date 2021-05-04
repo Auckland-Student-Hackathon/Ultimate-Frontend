@@ -1,0 +1,40 @@
+name: Node.js CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  pull_request_validation:
+    name: Validate PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install dependencies
+        run: npm ci
+      - name: Install client dependencies
+        run: npm run client-install
+      - name: Run linter
+        run: npm run lint --if-present
+      - name: Run tests
+        run: npm test
+      - name: Build project
+        run: npm run build --if-present
+
+  merge_to_main:
+    name: Branch Merge
+    needs: pull_request_validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: everlytic/branch-merge@1.1.0
+        with:
+          github_token: ${{ github.token }}
+          source_ref: ${{ github.ref }}
+          target_branch: main
+          commit_message_template: 'Merged {source_ref} into {target_branch}.'
