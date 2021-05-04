@@ -17,11 +17,11 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { Alert as MuiAlert } from '@material-ui/lab'
-import { PlayCircleOutlineRounded } from '@material-ui/icons'
 import { AuthContext } from '../../context'
 import { socket } from '../../instances'
 
 import { icons } from '../../utils'
+import { GAME_TYPE, GAME_TYPE_URL_MAP } from '../../utils/constants'
 
 const Alert = (props) => {
   // eslint-disable-next-line react/jsx-props-no-spreading
@@ -97,8 +97,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }))
-
-const GAME_TYPE = ['Tic-Tac-Toe', 'Puzzle']
 
 const Room = (props) => {
   const [open, setOpen] = useState(false)
@@ -206,12 +204,13 @@ const Room = (props) => {
     })
 
     socket.on('startGameResponse', (response) => {
-      const { success } = response
-      const { message } = response
+      const { success, message } = response
       if (success) {
+        const { mode } = response
+        const gameUrl = GAME_TYPE_URL_MAP[mode] || 'game'
         setSnackbarSeverity('success')
         setTimeout(() => {
-          history.push(`/game/${roomId}`)
+          history.push(`/${gameUrl}/${roomId}`)
         }, 1000)
       } else {
         setSnackbarSeverity('error')
