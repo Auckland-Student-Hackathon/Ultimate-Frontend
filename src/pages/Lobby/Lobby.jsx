@@ -111,10 +111,10 @@ function Lobby(props) {
   const [rooms, setRooms] = useState([])
 
   const handleJoinRoom = (room) => {
+    setWaiting(true)
     socket.emit('joinRoom', {
       roomId: room.code,
     })
-    // history.push({ pathname: `room/${room.code}`, roomInfo: room })
   }
 
   const goToLeaderboard = () => {
@@ -139,7 +139,7 @@ function Lobby(props) {
 
     socket.on('joinRoomResponse', (response) => {
       if (response.success) {
-        setSnackbarSeverity('success')
+        setWaiting(false)
         history.push(`/room/${response.roomId}`)
       } else {
         setSnackbarSeverity('error')
