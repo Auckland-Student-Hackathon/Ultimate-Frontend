@@ -14,6 +14,7 @@ import win from '../assets/icons/win.png'
 import lose from '../assets/icons/lose.png'
 import score from '../assets/icons/score.png'
 import profile from '../assets/icons/profile.png'
+import avatar from '../assets/icons/avatar.png'
 
 const icons = {
   logo1,
@@ -32,6 +33,7 @@ const icons = {
   lose,
   score,
   profile,
+  avatar,
 }
 
 export default icons
