@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import React, { useState, useRef, useEffect, useContext } from 'react'
+import { useHistory, useParams } from 'react-router-dom'
 import {
   Container,
   Button,
@@ -11,10 +11,22 @@ import {
   MenuItem,
   MenuList,
   Avatar,
+  Snackbar,
+  Backdrop,
+  CircularProgress,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
+import { Alert as MuiAlert } from '@material-ui/lab'
+import { PlayCircleOutlineRounded } from '@material-ui/icons'
+import { AuthContext } from '../../context'
+import { socket } from '../../instances'
 
 import { icons } from '../../utils'
+
+const Alert = (props) => {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 const useStyles = makeStyles((theme) => ({
   gameIcon: {
@@ -86,23 +98,132 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+const GAME_TYPE = ['Tic-Tac-Toe', 'Puzzle']
+
 const Room = (props) => {
   const [open, setOpen] = useState(false)
 
   const anchorRef = useRef(null)
   const history = useHistory()
   const classes = useStyles()
+  const { id } = useParams()
+  const roomId = id
+
+  const [waiting, setWaiting] = useState(true)
+  const [gameType, setGameType] = useState(GAME_TYPE[0])
+  const AuthObj = useContext(AuthContext)
+  const [ready, setReady] = useState(false)
+
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [failed, setFailed] = useState(false)
+  const [roomDetails, setRoomDetails] = useState(null)
+  const [ownerUid, setOwnerUid] = useState('')
+  const [currentScore, setCurrentScore] = useState('0 - 0')
 
   const { location } = props
   const { roomInfo } = location
 
-  let imgSrc
+  const [imgSrc, setImgSrc] = useState(() => {
+    if (gameType === GAME_TYPE[0]) {
+      return icons.ticTacToe
+    }
+    return icons.puzzle
+  })
 
-  if (roomInfo) {
-    imgSrc = roomInfo.game === 'tic-tac-toe' ? icons.ticTacToe : icons.puzzle
-  } else {
-    imgSrc = icons.puzzle
-  }
+  useEffect(() => {
+    socket.emit('getRoomDetails', {
+      roomId,
+    })
+
+    socket.on('getRoomDetailsResponse', (response) => {
+      console.log('response', response)
+      if (response.success) {
+        const { data } = response
+        setSnackbarSeverity('success')
+        setGameType(data.mode)
+        setRoomDetails(data)
+        setOwnerUid(data.owner)
+      } else {
+        setSnackbarSeverity('error')
+        setSnackbarMessage(response.message)
+        setShowSnackbar(true)
+        setFailed(true)
+      }
+      setWaiting(false)
+    })
+
+    socket.on('newUserJoinedResponse', (response) => {
+      const { data } = response
+      const { newPlayer } = response
+      setRoomDetails(data)
+      setSnackbarSeverity('success')
+      setSnackbarMessage(`${newPlayer.name} has joined!`)
+      setShowSnackbar(true)
+    })
+
+    socket.on('playerReadyResponse', (response) => {
+      const { success } = response
+      if (!success) {
+        setSnackbarSeverity('error')
+        setSnackbarMessage(response.message)
+        setShowSnackbar(true)
+      } else {
+        const { data } = response
+        const { playerObj } = response
+        if (playerObj.uid === AuthObj.uid) {
+          // is myself
+          setSnackbarSeverity('success')
+          setSnackbarMessage(`Updated my status to ready!`)
+          setShowSnackbar(true)
+          setRoomDetails(data)
+          setReady(true)
+        } else {
+          setSnackbarSeverity('success')
+          setSnackbarMessage(`${playerObj.name} is ready!`)
+          setShowSnackbar(true)
+          setRoomDetails(data)
+        }
+      }
+    })
+
+    socket.on('changeGameModeResponse', (response) => {
+      if (response.success) {
+        setSnackbarSeverity('success')
+        const { mode } = response
+        if (mode === GAME_TYPE[0]) {
+          setImgSrc(icons.ticTacToe)
+        } else {
+          setImgSrc(icons.puzzle)
+        }
+        setGameType(mode)
+      } else {
+        setSnackbarSeverity('error')
+      }
+      setShowSnackbar(true)
+      setSnackbarMessage(response.message)
+    })
+
+    socket.on('startGameResponse', (response) => {
+      const { success } = response
+      const { message } = response
+      if (success) {
+        setSnackbarSeverity('success')
+        setTimeout(() => {
+          history.push(`/game/${roomId}`)
+        }, 1000)
+      } else {
+        setSnackbarSeverity('error')
+      }
+      setSnackbarMessage(message)
+      setShowSnackbar(true)
+    })
+
+    return () => {
+      socket.removeAllListeners()
+    }
+  }, [])
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen)
@@ -124,24 +245,49 @@ const Room = (props) => {
   }
 
   const handleStartGame = () => {
-    history.push({ pathname: `/room/${roomInfo.code}/puzzle`, roomInfo })
+    // Check if all players are ready
+    // Client and server side check :)
+    socket.emit('startGame', {
+      roomId,
+    })
   }
 
   const renderPlayer = () => {
+    if (roomDetails == null) {
+      return null
+    }
+    const { players } = roomDetails
+    if (players.length === 1) {
+      return (
+        <div>
+          <div className={classes.userInfo}>
+            <Avatar className={classes.avatar} alt="Avatar Image">
+              {`${String(players[0]?.name || 'G')[0]}`}
+            </Avatar>
+            <div>{`${players[0]?.name || ''} - ${players[0].ready ? 'Ready' : 'Not Ready'}`}</div>
+          </div>
+          <div className={classes.userInfo}>
+            <Avatar className={classes.avatar} alt="Avatar Image">
+              ?
+            </Avatar>
+            <div>Waiting...</div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div>
-        <div className={classes.userInfo}>
-          <Avatar className={classes.avatar} alt="Avatar Image">
-            N
-          </Avatar>
-          <div>{roomInfo ? roomInfo.owner : ''}</div>
-        </div>
-        <div className={classes.userInfo}>
-          <Avatar className={classes.avatar} alt="Avatar Image">
-            ?
-          </Avatar>
-          <div>Waiting...</div>
-        </div>
+        {players.map((player) => {
+          return (
+            <div className={classes.userInfo} key={player.uid}>
+              <Avatar className={classes.avatar} alt="Avatar Image">
+                {`${String(player?.name || 'G')[0]}`}
+              </Avatar>
+              <div>{`${player?.name || ''} - ${player?.ready ? 'Ready' : 'Not Ready'}`}</div>
+            </div>
+          )
+        })}
       </div>
     )
   }
@@ -156,55 +302,116 @@ const Room = (props) => {
   }, [open])
 
   return (
-    <Container maxWidth="md">
-      <div className={classes.gameListContainer}>
-        <img src={imgSrc} alt="Game Icon" className={classes.gameIcon} />
-        <Button
-          className={classes.listContainer}
-          fullWidth
-          ref={anchorRef}
-          aria-controls={open ? 'menu-list-grow' : undefined}
-          aria-haspopup="true"
-          onClick={handleToggle}
-        >
-          Puzzle
-        </Button>
-        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
-          {({ TransitionProps, placement }) => (
-            <Grow
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...TransitionProps}
-              style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
-            >
-              <Paper className={classes.dropdownList}>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                    <MenuItem onClick={handleClose}>Puzzle</MenuItem>
-                    <MenuItem onClick={handleClose}>Tic tac toe</MenuItem>
-                    <MenuItem onClick={handleClose}>Take away</MenuItem>
-                    <MenuItem onClick={handleClose}>Connect Four</MenuItem>
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
-      </div>
-
-      <div className={classes.mainContainer}>
-        {renderPlayer()}
-        <div className={classes.scoreContainer}>
-          <img src={icons.score} alt="Score Icon" className={classes.scoreIcon} />
-          <div className={classes.score}>3 - 5</div>
-          <Button className={classes.button} onClick={handleStartGame}>
-            Start game!
+    <>
+      <Container maxWidth="md">
+        <div className={classes.gameListContainer}>
+          <img src={imgSrc} alt="Game Icon" className={classes.gameIcon} />
+          <Button
+            className={classes.listContainer}
+            fullWidth
+            ref={anchorRef}
+            aria-controls={open ? 'menu-list-grow' : undefined}
+            aria-haspopup="true"
+            onClick={() => {
+              if (ownerUid !== AuthObj.uid) {
+                return
+              }
+              handleToggle()
+            }}
+          >
+            {gameType}
           </Button>
-          <Link underline="none" href="/lobby" className={classes.link2}>
-            <Button className={classes.backButton}>Back to lobby</Button>
-          </Link>
+          <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+            {({ TransitionProps, placement }) => (
+              <Grow
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...TransitionProps}
+                style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+              >
+                <Paper className={classes.dropdownList}>
+                  <ClickAwayListener onClickAway={handleClose}>
+                    <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
+                      {GAME_TYPE.map((gameName) => {
+                        return (
+                          <MenuItem
+                            key={gameName}
+                            onClick={(e) => {
+                              handleClose(e)
+                              if (gameName === GAME_TYPE[0]) {
+                                setImgSrc(icons.ticTacToe)
+                              } else {
+                                setImgSrc(icons.puzzle)
+                              }
+                              socket.emit('changeGameMode', {
+                                roomId,
+                                mode: gameName,
+                              })
+                              setGameType(gameName)
+                            }}
+                          >
+                            {gameName}
+                          </MenuItem>
+                        )
+                      })}
+                    </MenuList>
+                  </ClickAwayListener>
+                </Paper>
+              </Grow>
+            )}
+          </Popper>
         </div>
-      </div>
-    </Container>
+
+        <div className={classes.mainContainer}>
+          {renderPlayer()}
+          <div className={classes.scoreContainer}>
+            <img src={icons.score} alt="Score Icon" className={classes.scoreIcon} />
+            <div className={classes.score}>{currentScore}</div>
+            {ownerUid === AuthObj.uid ? (
+              <Button className={classes.button} onClick={handleStartGame}>
+                Start game!
+              </Button>
+            ) : (
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  socket.emit('playerReady', {
+                    roomId,
+                  })
+                }}
+              >
+                Ready
+              </Button>
+            )}
+
+            <Button
+              className={classes.backButton}
+              onClick={() => {
+                history.push('/lobby')
+              }}
+            >
+              Back to lobby
+            </Button>
+          </div>
+        </div>
+      </Container>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={5000}
+        onClose={(event, reason) => {
+          if (reason === 'clickaway') {
+            return
+          }
+          setShowSnackbar(false)
+        }}
+      >
+        <Alert onClose={() => setShowSnackbar(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+      <Backdrop open={waiting} style={{ zIndex: 10000 }}>
+        <CircularProgress />
+      </Backdrop>
+    </>
   )
 }
 
