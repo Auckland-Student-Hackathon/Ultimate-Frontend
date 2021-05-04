@@ -187,11 +187,10 @@ function Lobby(props) {
 
   const renderRooms = (allRooms) => {
     return allRooms.map((room) => {
-      const imgSrc = room.game === 'tic-tac-toe' ? icons.ticTacToe : icons.puzzle
+      const imgSrc = room.game === 'Tic-Tac-Toe' ? icons.ticTacToe : icons.puzzle
       return (
         <Grid container justify="start" alignItems="center" item xs={6}>
           <div>
-            {room.game === 'tic-tac-toe? '}
             <img src={imgSrc} alt="game icon" className={classes.logoGame} />
             <Button className={classes.roomContainer} onClick={() => handleJoinRoom(room)}>
               <div className={classes.roomInfoRight}>
