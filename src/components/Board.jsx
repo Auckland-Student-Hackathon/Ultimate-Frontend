@@ -5,7 +5,7 @@ const useStyles = makeStyles((theme) => ({
   slot: {
     backgroundColor: '#c4c4c4',
     marginTop: '1em',
-    height: '40%',
+    height: '50%',
   },
 }))
 
@@ -24,7 +24,7 @@ function Board(props) {
     }
 
     rows.push(
-      <Grid item xs={4}>
+      <Grid item xs={3}>
         {cols}
       </Grid>
     )

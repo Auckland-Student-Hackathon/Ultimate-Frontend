@@ -20,8 +20,8 @@ const App = (props) => {
         <Route exact path="/profile" component={Profile} />
         <Route exact path="/lobby" component={Lobby} />
         <Route path="/room/:id/puzzle" component={RunGame} />
-        <Route path="/room/:id/win" component={WinGame} />
-        <Route path="/room/:id/lose" component={LoseGame} />
+        <Route path="/win" component={WinGame} />
+        <Route path="/lose" component={LoseGame} />
         <Route path="/room/:id" component={Room} />
         {/* Private */}
       </Switch>

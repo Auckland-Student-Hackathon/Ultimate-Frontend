@@ -28,7 +28,7 @@ const useStyle = makeStyles((theme) => ({
     justifyContent: 'flex-end',
   },
   logoImg: {
-    maxWidth: '12%',
+    maxWidth: '72%',
     '&:hover': {
       backgroundColor: '#3f414d',
       borderRadius: 20,
@@ -95,6 +95,12 @@ const useStyle = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'flex-end',
   },
+  menuButton: {
+    backgroundColor: 'inherit',
+    border: 0,
+    textAlign: 'right',
+    width: '18%',
+  },
 }))
 
 function Lobby(props) {
@@ -103,6 +109,14 @@ function Lobby(props) {
 
   const handleJoinRoom = (room) => {
     history.push({ pathname: `room/${room.code}`, roomInfo: room })
+  }
+
+  const goToLeaderboard = () => {
+    history.push('/leaderboard')
+  }
+
+  const goToProfile = () => {
+    history.push('/profile')
   }
 
   const renderRooms = (allRooms) => {
@@ -129,8 +143,12 @@ function Lobby(props) {
   return (
     <div>
       <div className={classes.logoBar}>
-        <img src={icons.profile} alt="profile" className={classes.logoImg} />
-        <img src={icons.leaderboard} alt="leaderboard" className={classes.logoImg} />
+        <button type="button" onClick={goToProfile} className={classes.menuButton}>
+          <img src={icons.profile} alt="profile" className={classes.logoImg} />
+        </button>
+        <button type="button" onClick={goToLeaderboard} className={classes.menuButton}>
+          <img src={icons.leaderboard} alt="leaderboard" className={classes.logoImg} />
+        </button>
       </div>
 
       <Container component="main" maxWidth="md">

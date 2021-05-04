@@ -95,7 +95,14 @@ const Room = (props) => {
 
   const { location } = props
   const { roomInfo } = location
-  const imgSrc = roomInfo.game === 'tic-tac-toe' ? icons.ticTacToe : icons.puzzle
+
+  let imgSrc
+
+  if (roomInfo) {
+    imgSrc = roomInfo.game === 'tic-tac-toe' ? icons.ticTacToe : icons.puzzle
+  } else {
+    imgSrc = icons.puzzle
+  }
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen)
@@ -127,7 +134,7 @@ const Room = (props) => {
           <Avatar className={classes.avatar} alt="Avatar Image">
             N
           </Avatar>
-          <div>{roomInfo.owner}</div>
+          <div>{roomInfo ? roomInfo.owner : ''}</div>
         </div>
         <div className={classes.userInfo}>
           <Avatar className={classes.avatar} alt="Avatar Image">
