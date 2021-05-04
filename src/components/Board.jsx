@@ -12,6 +12,10 @@ const useStyles = makeStyles((theme) => ({
 function Board(props) {
   const classes = useStyles()
 
+  const onTileClick = () => {
+    // console.log('Tile click')
+  }
+
   const rows = []
   for (let y = 0; y < 3; y += 1) {
     const cols = []
@@ -30,7 +34,7 @@ function Board(props) {
     )
   }
 
-  return rows
+  return <Grid gridSize={4} tileSize={90} tiles={3} onTileClick={onTileClick} />
 }
 
 export default Board
