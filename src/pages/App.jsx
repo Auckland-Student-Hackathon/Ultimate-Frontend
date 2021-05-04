@@ -7,6 +7,7 @@ import { Login, Register } from './Auth'
 import { Welcome, LeaderBoard, Profile } from './General'
 import { Lobby, Room } from './Lobby'
 import { RunGame, WinGame, LoseGame } from './PuzzleGame'
+import ProtectedRoute from '../routes'
 
 const App = (props) => {
   return (
@@ -16,13 +17,13 @@ const App = (props) => {
         <Route exact path="/register" component={Register} />
         <Route exact path="/" component={Welcome} />
         {/* Private */}
-        <Route exact path="/leaderboard" component={LeaderBoard} />
-        <Route exact path="/profile" component={Profile} />
-        <Route exact path="/lobby" component={Lobby} />
-        <Route path="/room/:id/puzzle" component={RunGame} />
-        <Route path="/win" component={WinGame} />
-        <Route path="/lose" component={LoseGame} />
-        <Route path="/room/:id" component={Room} />
+        <ProtectedRoute exact path="/profile" component={Profile} />
+        <ProtectedRoute exact path="/leaderboard" component={LeaderBoard} />
+        <ProtectedRoute exact path="/lobby" component={Lobby} />
+        <ProtectedRoute path="/room/:id/puzzle" component={RunGame} />
+        <ProtectedRoute path="/win" component={WinGame} />
+        <ProtectedRoute path="/lose" component={LoseGame} />
+        <ProtectedRoute path="/room/:id" component={Room} />
         {/* Private */}
       </Switch>
     </Router>
