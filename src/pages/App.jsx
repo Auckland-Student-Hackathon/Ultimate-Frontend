@@ -7,6 +7,7 @@ import { Login, Register } from './Auth'
 import { Welcome, LeaderBoard, Profile } from './General'
 import { Lobby, Room } from './Lobby'
 import { RunGame, WinGame, LoseGame } from './PuzzleGame'
+import TicTacToeGame from './TicTacToeGame'
 import ProtectedRoute from '../routes'
 
 const App = (props) => {
@@ -24,6 +25,7 @@ const App = (props) => {
         <ProtectedRoute path="/win" component={WinGame} />
         <ProtectedRoute path="/lose" component={LoseGame} />
         <ProtectedRoute path="/room/:id" component={Room} />
+        <ProtectedRoute path="/ticTacToe/:id" component={TicTacToeGame} />
         {/* Private */}
       </Switch>
     </Router>
