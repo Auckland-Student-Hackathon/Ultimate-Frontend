@@ -1,0 +1,89 @@
+import React, { useState, useEffect } from 'react'
+import firebase from 'firebase/app'
+import "firebase/auth"
+import { AuthContext } from '../AuthContext'
+
+// const useProvideAuth = () => {
+//   const [user, setUser] = useState(firebase.auth().currentUser)
+
+
+//   useEffect(() => {
+//     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+//       setUser({
+//         email: user.email,
+//         uid: user.uid,
+//         name: user.displayName
+//       })
+//     })
+//     return unsubscribe
+//   }, [])
+
+//   return {
+//     user,
+//     setUser,
+//     signIn,
+//     signOut
+//   }
+// }
+
+const AuthProvider = (props) => {
+  const [currentUser, setCurrentUser] = useState(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [uid, setUid] = useState("")
+
+  useEffect(() => {
+    const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+      setCurrentUser(user)
+      if (user) {
+        setIsLoggedIn(true)
+        setUid(user.uid)
+      } else {
+        setIsLoggedIn(false)
+      }
+      setIsLoading(false)
+    })
+    return unsubscribe
+  }, [])
+
+  const signIn = async (email, password) => {
+    try {
+      const userCred = await firebase.auth().signInWithEmailAndPassword(email, password)
+      return Promise.resolve({
+        email: userCred.user.email,
+        uid: userCred.user.uid,
+        name: userCred.user.displayName
+      })
+    } catch (err) {
+      return Promise.reject(err)
+    }
+  }
+
+  const signOut = async () => {
+    try {
+      await firebase.auth().signOut()
+      return Promise.resolve(true)
+    } catch (err) {
+      return Promise.reject(err)
+    }
+  }
+
+  const obj = {
+    currentUser,
+    isLoggedIn,
+    isLoading,
+    uid,
+    signIn,
+    signOut
+  }
+
+  return (
+    <AuthContext.Provider value={obj}>
+      {props.children}
+    </AuthContext.Provider>
+  )
+}
+
+export {
+  AuthProvider
+}
