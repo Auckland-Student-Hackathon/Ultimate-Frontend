@@ -26,7 +26,6 @@ function ToolBar() {
             aria-label="account of current user"
             aria-controls="menu-appbar"
             aria-haspopup="true"
-            onClick={() => console.log('Click')}
             color="inherit"
           >
             <EqualizerIcon />
@@ -37,7 +36,6 @@ function ToolBar() {
             aria-label="account of current user"
             aria-controls="menu-appbar"
             aria-haspopup="true"
-            onClick={() => console.log('Click')}
             color="inherit"
           >
             <AccountCircle />
