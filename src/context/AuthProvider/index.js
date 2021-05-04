@@ -25,6 +25,7 @@ const AuthProvider = (props) => {
   const signIn = async (email, password) => {
     try {
       const userCred = await firebase.auth().signInWithEmailAndPassword(email, password)
+      localStorage.setItem('uid', userCred.user.uid)
       return Promise.resolve({
         email: userCred.user.email,
         uid: userCred.user.uid,

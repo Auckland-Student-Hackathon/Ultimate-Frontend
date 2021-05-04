@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useContext } from 'react'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -9,9 +9,16 @@ import Box from '@material-ui/core/Box'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
-import { Container, Input } from '@material-ui/core'
+import { Container, Input, Backdrop, CircularProgress, Snackbar } from '@material-ui/core'
 import { Label } from '@material-ui/icons'
+import { Alert as MuiAlert } from '@material-ui/lab'
 import { icons } from '../../utils'
+import { AuthContext } from '../../context'
+
+const Alert = (props) => {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -83,39 +90,120 @@ const useStyles = makeStyles((theme) => ({
 function Login() {
   const classes = useStyles()
 
+  const AuthObj = useContext(AuthContext)
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [waiting, setWaiting] = useState(false)
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+
+  const handleLogin = async () => {
+    if (String(email).trim() === '') {
+      setShowSnackbar(true)
+      setSnackbarSeverity('error')
+      setSnackbarMessage('The email field cannot be empty')
+      return
+    }
+    if (String(password).trim() === '') {
+      setShowSnackbar(true)
+      setSnackbarSeverity('error')
+      setSnackbarMessage('The password field cannot be empty')
+      return
+    }
+    try {
+      setWaiting(true)
+      await AuthObj.signIn(email, password)
+      window.location.replace('/profile')
+    } catch (err) {
+      setShowSnackbar(true)
+      setSnackbarSeverity('error')
+      setSnackbarMessage(err.message)
+    } finally {
+      setWaiting(false)
+    }
+  }
+
   return (
-    <Container component="main" maxWidth="md">
-      <img src={icons.login} alt="Login" className={classes.icon} />
-      <div className={classes.paper}>
-        <Typography variant="h4" className={classes.title}>
-          LOGIN LOGIN LOGIN ...
-        </Typography>
+    <>
+      <Container component="main" maxWidth="md">
+        <img src={icons.login} alt="Login" className={classes.icon} />
+        <div className={classes.paper}>
+          <Typography variant="h4" className={classes.title}>
+            LOGIN LOGIN LOGIN ...
+          </Typography>
 
-        <form className={classes.form}>
-          <div className={classes.formInput}>
-            <div className={classes.groupInput}>
-              <div className={classes.label}>Your nick name</div>
-              <Input type="text" className={classes.input} id="name" name="name" disableUnderline />
+          <form className={classes.form}>
+            <div className={classes.formInput}>
+              <div className={classes.groupInput}>
+                <div className={classes.label}>Your email</div>
+                <Input
+                  type="text"
+                  className={classes.input}
+                  id="name"
+                  name="name"
+                  disableUnderline
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                  }}
+                />
+              </div>
+              <div className={classes.groupInput}>
+                <div className={classes.label}>Your password</div>
+                <Input
+                  type="password"
+                  className={classes.input}
+                  id="password"
+                  name="password"
+                  disableUnderline
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                  }}
+                />
+              </div>
             </div>
-            <div className={classes.groupInput}>
-              <div className={classes.label}>Your password</div>
-              <Input type="password" className={classes.input} id="password" name="password" disableUnderline />
-            </div>
-          </div>
 
-          <Link href="./profile" className={classes.goLink} underline="none">
-            <Button>Let&apos;s go</Button>
-          </Link>
-          <Link href="/login" variant="body2" className={classes.link}>
-            Forgot my password
-          </Link>
-          <Link href="/register" variant="body2" className={classes.link}>
-            Go to register!
-          </Link>
-        </form>
-      </div>
-    </Container>
+            <Button
+              className={classes.goLink}
+              onClick={() => {
+                handleLogin()
+              }}
+            >
+              Let&apos;s go
+            </Button>
+
+            <Link href="/login" variant="body2" className={classes.link}>
+              Forgot my password
+            </Link>
+            <Link href="/register" variant="body2" className={classes.link}>
+              Go to register!
+            </Link>
+          </form>
+        </div>
+      </Container>
+      <Backdrop open={waiting} style={{ zIndex: 10000 }}>
+        <CircularProgress />
+      </Backdrop>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={5000}
+        onClose={(event, reason) => {
+          if (reason === 'clickaway') {
+            return
+          }
+          setShowSnackbar(false)
+        }}
+      >
+        <Alert onClose={() => setShowSnackbar(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </>
   )
 }
-
 export default Login

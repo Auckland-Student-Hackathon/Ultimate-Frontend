@@ -18,7 +18,7 @@ if (firebase.apps.length === 0) {
 }
 
 const socket = io(
-  'https://ultimate-game-center-backend.herokuapp.com/' || process.env.SERVER_URL || 'http://localhost:5000',
+  process.env.SERVER_URL || 'https://ultimate-game-center-backend.herokuapp.com/' || 'http://localhost:5000',
   {
     query: {
       // Unable to get the uid from the firebase package on initial render :(

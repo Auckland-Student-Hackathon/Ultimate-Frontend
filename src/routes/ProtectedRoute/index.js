@@ -11,7 +11,17 @@ const ProtectedRoute = ({ children, ...rest }) => {
   return (
     <>
       {isLoading ? (
-        <CircularProgress />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            weight: '100vw',
+          }}
+        >
+          <CircularProgress />
+        </div>
       ) : isLoggedIn ? (
         <Route {...rest} render={() => children} />
       ) : (
