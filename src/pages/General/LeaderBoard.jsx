@@ -3,8 +3,6 @@ import { List, makeStyles, Divider, Box, Avatar, Container, Button } from '@mate
 import Pagination from '@material-ui/lab/Pagination'
 import { icons } from '../../utils'
 
-const columns = [{ field: 'firstName', headerName: 'Leaderboard' }]
-
 const rows = [
   { id: 1, firstName: 'Snow', score: 123 },
   { id: 2, firstName: 'Lannister', score: 123 },
