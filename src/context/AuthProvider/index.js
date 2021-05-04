@@ -1,29 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import firebase from 'firebase/app'
-import 'firebase/auth'
+import { firebase } from '../../instances'
 import AuthContext from '../AuthContext'
-
-// const useProvideAuth = () => {
-//   const [user, setUser] = useState(firebase.auth().currentUser)
-
-//   useEffect(() => {
-//     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-//       setUser({
-//         email: user.email,
-//         uid: user.uid,
-//         name: user.displayName
-//       })
-//     })
-//     return unsubscribe
-//   }, [])
-
-//   return {
-//     user,
-//     setUser,
-//     signIn,
-//     signOut
-//   }
-// }
 
 const AuthProvider = (props) => {
   const [currentUser, setCurrentUser] = useState(null)
