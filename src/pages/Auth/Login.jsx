@@ -94,6 +94,7 @@ function Login() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
   const [waiting, setWaiting] = useState(false)
   const [showSnackbar, setShowSnackbar] = useState(false)
   const [snackbarSeverity, setSnackbarSeverity] = useState('success')

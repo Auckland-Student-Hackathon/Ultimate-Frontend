@@ -17,8 +17,8 @@ const App = (props) => {
         <Route exact path="/register" component={Register} />
         <Route exact path="/" component={Welcome} />
         {/* Private */}
-        <ProtectedRoute exact path="/leaderboard" component={LeaderBoard} />
         <ProtectedRoute exact path="/profile" component={Profile} />
+        <ProtectedRoute exact path="/leaderboard" component={LeaderBoard} />
         <ProtectedRoute exact path="/lobby" component={Lobby} />
         <ProtectedRoute path="/room/:id/puzzle" component={RunGame} />
         <ProtectedRoute path="/win" component={WinGame} />

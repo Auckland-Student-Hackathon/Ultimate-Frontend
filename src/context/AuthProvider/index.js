@@ -36,6 +36,20 @@ const AuthProvider = (props) => {
     }
   }
 
+  const signUp = async (email, password) => {
+    try {
+      const userCred = await firebase.auth().createUserWithEmailAndPassword(email, password)
+      localStorage.setItem('uid', userCred.user.uid)
+      return Promise.resolve({
+        email: userCred.user.email,
+        uid: userCred.user.uid,
+        name: userCred.user.displayName,
+      })
+    } catch (err) {
+      return Promise.reject(err)
+    }
+  }
+
   const signOut = async () => {
     try {
       await firebase.auth().signOut()
@@ -52,6 +66,7 @@ const AuthProvider = (props) => {
     uid,
     signIn,
     signOut,
+    signUp,
   }
 
   const { children } = props
