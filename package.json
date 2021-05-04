@@ -1,6 +1,9 @@
 {
   "name": "project",
   "version": "0.1.0",
+  "engines": {
+    "node": "14.15.1"
+  },
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.4",

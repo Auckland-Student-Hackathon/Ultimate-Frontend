@@ -12,6 +12,23 @@ const useStyles = makeStyles((theme) => ({
 function Board(props) {
   const classes = useStyles()
 
+  const generateTiles = () => {
+    const newTileArray = []
+    for (let i = 0; i < 9; i += 1) {
+      const newTile = { id: 1 }
+      newTileArray.push(newTile)
+    }
+
+    const { length } = newTileArray
+    for (let i = 0; i < length; i += 1) {
+      const random = Math.floor(Math.random() * (length - 1))
+      const randomitemArray = newTileArray.splice(random, 1)
+      newTileArray.push(randomitemArray[0])
+    }
+
+    return newTileArray
+  }
+
   const rows = []
   for (let y = 0; y < 3; y += 1) {
     const cols = []
@@ -30,7 +47,7 @@ function Board(props) {
     )
   }
 
-  return rows
+  return generateTiles()
 }
 
 export default Board
