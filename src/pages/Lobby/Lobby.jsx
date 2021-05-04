@@ -151,7 +151,7 @@ function Lobby(props) {
         </button>
       </div>
 
-      <Container component="main" maxWidth="md">
+      <Container component="main" maxWidth="lg">
         <div className={classes.paper}>
           <Typography variant="h4" className={classes.title}>
             HAVE FUN!

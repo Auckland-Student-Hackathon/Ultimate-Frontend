@@ -1,8 +1,16 @@
-import React from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Button, Link, Avatar, Grid, makeStyles } from '@material-ui/core'
+import { Button, Link, Avatar, Grid, makeStyles, Backdrop, CircularProgress, Snackbar } from '@material-ui/core'
+import { Alert as MuiAlert } from '@material-ui/lab'
+import { axios } from '../../instances'
+import { AuthContext } from '../../context'
 
 import { icons } from '../../utils'
+
+const Alert = (props) => {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 const useStyle = makeStyles((theme) => ({
   logoBar: {
@@ -80,16 +88,24 @@ const useStyle = makeStyles((theme) => ({
   },
 }))
 
-const recordsData = {
-  rank: 50,
-  winRate: '85%',
-  win: 115,
-  lose: 21,
-}
-
-function Profile(props) {
+const Profile = (props) => {
   const classes = useStyle()
   const history = useHistory()
+
+  const [recordsData, setRecordsData] = useState({
+    rank: 100,
+    winRate: '0%',
+    win: 0,
+    lose: 0,
+  })
+  const [name, setName] = useState('')
+
+  const [waiting, setWaiting] = useState(false)
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+
+  const [showHelp, setShowHelp] = useState(false)
 
   const goToLeaderboard = () => {
     history.push('/leaderboard')
@@ -99,13 +115,48 @@ function Profile(props) {
     history.push('/')
   }
 
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const userResponse = await axios.get('/user')
+        const userDoc = userResponse.data
+        setName(userDoc?.name || '')
+        const win = userDoc?.wins || 0
+        const lose = userDoc?.loses || 0
+        let winRate = 0
+
+        if (win === 0) {
+          winRate = 0
+        } else {
+          const total = win + lose
+          const percentage = Math.round((win / total) * 100 * 100) / 100
+          winRate = percentage
+        }
+
+        setRecordsData({
+          rank: 100,
+          winRate: `${winRate}%`,
+          win,
+          lose,
+        })
+      } catch (err) {
+        setSnackbarMessage('Your password is empty!')
+        setSnackbarSeverity('error')
+        setShowSnackbar(true)
+      } finally {
+        setWaiting(false)
+      }
+    }
+    getData()
+  }, [])
+
   const renderRecord = (records) => {
     return (
       <Grid container justify="center" alignItems="center" item xs={6}>
         <Grid alignItems="center" item xs={6}>
           <div>
             <div className={classes.recordLabel}>Your Rank</div>
-            <div className={classes.recordContent}>{records.rank}</div>
+            <div className={classes.recordContent}>{`#${records.rank}`}</div>
           </div>
           <div>
             <div className={classes.recordLabel}>Win rate</div>
@@ -127,54 +178,81 @@ function Profile(props) {
   }
 
   return (
-    <div>
-      <div className={classes.logoBar}>
-        <button type="button" onClick={handleLogout} className={classes.menuButton}>
-          <img src={icons.logout} alt="Logout" className={classes.logoImg} />
-        </button>
-        <button type="button" onClick={goToLeaderboard} className={classes.menuButton}>
-          <img src={icons.leaderboard} alt="Leaderboard" className={classes.logoImg} />
-        </button>
-      </div>
-      <Avatar className={classes.avatar} alt="Avatar Image">
-        N
-      </Avatar>
-      <div className={classes.name}>Nick name</div>
+    <>
+      <div>
+        <div className={classes.logoBar}>
+          <button type="button" onClick={handleLogout} className={classes.menuButton}>
+            <img src={icons.logout} alt="Logout" className={classes.logoImg} />
+          </button>
+          <button type="button" onClick={goToLeaderboard} className={classes.menuButton}>
+            <img src={icons.leaderboard} alt="Leaderboard" className={classes.logoImg} />
+          </button>
+        </div>
+        <Avatar className={classes.avatar} alt="Avatar Image" src={icons.avatar} />
+        <div className={classes.name}>{name}</div>
 
-      <Grid container spacing={3}>
-        <Grid justify="center" alignItems="center" xs={1} />
-        {renderRecord(recordsData)}
-        <Grid container justify="center" alignItems="start" item xs={5}>
-          <div className={classes.buttonGroup}>
-            <img src={icons.gotoLobby} alt="Go to lobby" className={classes.buttonImg} />
-            <Link underline="none" href="/lobby">
-              <Button className={classes.button}>Let&apos;s play!</Button>
-            </Link>
-            <img src={icons.whereToTtart} alt="Where to start" className={classes.buttonImg} />
-            <Button className={classes.button}>Where to start?</Button>
-          </div>
+        <Grid container spacing={3}>
+          <Grid justify="center" alignItems="center" xs={1} />
+          {renderRecord(recordsData)}
+          <Grid container justify="center" alignItems="start" item xs={5}>
+            <div className={classes.buttonGroup}>
+              <img src={icons.gotoLobby} alt="Go to lobby" className={classes.buttonImg} />
+              <Link underline="none" href="/lobby">
+                <Button className={classes.button}>Let&apos;s play!</Button>
+              </Link>
+              <img src={icons.whereToTtart} alt="Where to start" className={classes.buttonImg} />
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  setShowHelp(true)
+                }}
+              >
+                Where to start?
+              </Button>
+            </div>
+          </Grid>
         </Grid>
-      </Grid>
-      <div className={classes.helpBox}>
-        Hi! Welcome to our Family!
-        <br />
-        <br />
-        Press &quot;Go to Lobby&quot; to join or create a room.
-        <br />
-        <br />
-        In the room you created, you can choose the game you like, wait for another person, or play alone with the
-        machine.
-        <br />
-        <br />
-        If you win, you will get 100 scores. If you lose, you will lose 20 scores.
-        <br />
-        <br />
-        Every Sunday 9pm, the top 3 leaderboards will receive a present from us!
-        <br />
-        <br />
-        So... what are you waiting for? LET’S PLAY!
+
+        {showHelp ? (
+          <div className={classes.helpBox}>
+            Hi, Welcome to the Ultimate Game Center!
+            <br />
+            <br />
+            Press &quot;Go to Lobby&quot; to join or create a room.
+            <br />
+            <br />
+            In the room you created, you can choose the game you like, wait for another person, or play alone with the
+            machine.
+            <br />
+            <br />
+            If you win, you will get 100 scores. If you lose, you will lose 20 scores.
+            <br />
+            <br />
+            Every Sunday 9pm, the top 3 leaderboards will receive a present from us!
+            <br />
+            <br />
+            So... what are you waiting for? LET’S PLAY!
+          </div>
+        ) : null}
       </div>
-    </div>
+      <Backdrop open={waiting} style={{ zIndex: 10000 }}>
+        <CircularProgress />
+      </Backdrop>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={5000}
+        onClose={(event, reason) => {
+          if (reason === 'clickaway') {
+            return
+          }
+          setShowSnackbar(false)
+        }}
+      >
+        <Alert onClose={() => setShowSnackbar(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </>
   )
 }
 
