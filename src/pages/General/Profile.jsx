@@ -110,8 +110,8 @@ function Profile(props) {
   return (
     <div>
       <div className={classes.logoBar}>
-        <img src={icons.logout} alt="logout" className={classes.logoImg} />
-        <img src={icons.leaderboard} alt="leaderboard" className={classes.logoImg} />
+        <img src={icons.logout} alt="Logout" className={classes.logoImg} />
+        <img src={icons.leaderboard} alt="Leaderboard" className={classes.logoImg} />
       </div>
       <Avatar className={classes.avatar} alt="Avatar Image">
         N
@@ -124,7 +124,7 @@ function Profile(props) {
         <Grid container justify="center" alignItems="center" item xs={5}>
           <div className={classes.buttonGroup}>
             <img src={icons.gotoLobby} alt="Go to lobby" className={classes.buttonImg} />
-            <Link underline="none" href="/enter-lobby">
+            <Link underline="none" href="/lobby">
               <Button className={classes.button}>Let&apos;s play!</Button>
             </Link>
             <img src={icons.whereToTtart} alt="Where to start" className={classes.buttonImg} />

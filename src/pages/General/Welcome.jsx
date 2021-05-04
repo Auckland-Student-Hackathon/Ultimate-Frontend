@@ -2,7 +2,6 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Button, Link, AppBar, Container, Toolbar, Typography } from '@material-ui/core'
 
-import withRoot from '../../theme/withRoot'
 import { icons } from '../../utils'
 
 const useStyle = makeStyles((theme) => ({
@@ -138,4 +137,4 @@ const Welcome = () => {
   )
 }
 
-export default withRoot(Welcome)
+export default Welcome

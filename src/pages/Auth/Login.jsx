@@ -13,19 +13,6 @@ import { Container, Input } from '@material-ui/core'
 import { Label } from '@material-ui/icons'
 import { icons } from '../../utils'
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Ultimate Game Center
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  )
-}
-
 const useStyles = makeStyles((theme) => ({
   icon: {
     maxWidth: '20vh',
@@ -93,12 +80,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export default function SignUp() {
+function Login() {
   const classes = useStyles()
 
   return (
     <Container component="main" maxWidth="md">
-      <img src={icons.login} alt="register" className={classes.icon} />
+      <img src={icons.login} alt="Login" className={classes.icon} />
       <div className={classes.paper}>
         <Typography variant="h4" className={classes.title}>
           LOGIN LOGIN LOGIN ...
@@ -125,9 +112,8 @@ export default function SignUp() {
           </Link>
         </form>
       </div>
-      <Box mt={5}>
-        <Copyright />
-      </Box>
     </Container>
   )
 }
+
+export default Login

@@ -1,4 +1,4 @@
 import ToolBar from './ToolBar'
-import RoomSlot from './RoomSlot'
+import Board from './Board'
 
-export { ToolBar, RoomSlot }
+export { Board, ToolBar }
