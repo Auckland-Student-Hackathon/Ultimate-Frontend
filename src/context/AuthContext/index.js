@@ -3,6 +3,4 @@ import firebase from 'firebase/app'
 
 const AuthContext = createContext()
 
-export {
-  AuthContext
-}
+export default AuthContext

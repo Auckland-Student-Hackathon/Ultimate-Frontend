@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import firebase from 'firebase/app'
-import "firebase/auth"
-import { AuthContext } from '../AuthContext'
+import 'firebase/auth'
+import AuthContext from '../AuthContext'
 
 // const useProvideAuth = () => {
 //   const [user, setUser] = useState(firebase.auth().currentUser)
-
 
 //   useEffect(() => {
 //     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
@@ -30,7 +29,7 @@ const AuthProvider = (props) => {
   const [currentUser, setCurrentUser] = useState(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [uid, setUid] = useState("")
+  const [uid, setUid] = useState('')
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
@@ -52,7 +51,7 @@ const AuthProvider = (props) => {
       return Promise.resolve({
         email: userCred.user.email,
         uid: userCred.user.uid,
-        name: userCred.user.displayName
+        name: userCred.user.displayName,
       })
     } catch (err) {
       return Promise.reject(err)
@@ -74,16 +73,12 @@ const AuthProvider = (props) => {
     isLoading,
     uid,
     signIn,
-    signOut
+    signOut,
   }
 
-  return (
-    <AuthContext.Provider value={obj}>
-      {props.children}
-    </AuthContext.Provider>
-  )
+  const { children } = props
+
+  return <AuthContext.Provider value={obj}>{children}</AuthContext.Provider>
 }
 
-export {
-  AuthProvider
-}
+export default AuthProvider
