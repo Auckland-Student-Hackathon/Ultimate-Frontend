@@ -1,46 +1,26 @@
-import React from 'react'
-import { List, makeStyles, Divider, Box, Avatar, Container, Button } from '@material-ui/core'
+import React, { useState, useEffect } from 'react'
+import {
+  List,
+  makeStyles,
+  Divider,
+  Box,
+  Avatar,
+  Container,
+  Button,
+  Typography,
+  Backdrop,
+  CircularProgress,
+  Snackbar,
+} from '@material-ui/core'
 import Pagination from '@material-ui/lab/Pagination'
+import { Alert as MuiAlert } from '@material-ui/lab'
 import { icons } from '../../utils'
+import { axios } from '../../instances'
 
-const rows = [
-  { id: 1, firstName: 'Snow', score: 123 },
-  { id: 2, firstName: 'Lannister', score: 123 },
-  { id: 3, firstName: 'Lannister', score: 123 },
-  { id: 4, firstName: 'Stark', score: 123 },
-  { id: 5, firstName: 'Targaryen', score: 123 },
-  { id: 6, firstName: 'Melisandre', score: 123 },
-  { id: 7, firstName: 'Clifford', score: 123 },
-  { id: 8, firstName: 'Frances', score: 123 },
-  { id: 9, firstName: 'Roxie', score: 123 },
-  { id: 1, firstName: 'Snow', score: 123 },
-  { id: 2, firstName: 'Lannister', score: 123 },
-  { id: 3, firstName: 'Lannister', score: 123 },
-  { id: 4, firstName: 'Stark', score: 123 },
-  { id: 5, firstName: 'Targaryen', score: 123 },
-  { id: 6, firstName: 'Melisandre', score: 123 },
-  { id: 7, firstName: 'Clifford', score: 123 },
-  { id: 8, firstName: 'Frances', score: 123 },
-  { id: 9, firstName: 'Roxie', score: 123 },
-  { id: 1, firstName: 'Snow', score: 123 },
-  { id: 2, firstName: 'Lannister', score: 123 },
-  { id: 3, firstName: 'Lannister', score: 123 },
-  { id: 4, firstName: 'Stark', score: 123 },
-  { id: 5, firstName: 'Targaryen', score: 123 },
-  { id: 6, firstName: 'Melisandre', score: 123 },
-  { id: 7, firstName: 'Clifford', score: 123 },
-  { id: 8, firstName: 'Frances', score: 123 },
-  { id: 9, firstName: 'Roxie', score: 123 },
-  { id: 1, firstName: 'Snow', score: 123 },
-  { id: 2, firstName: 'Lannister', score: 123 },
-  { id: 3, firstName: 'Lannister', score: 123 },
-  { id: 4, firstName: 'Stark', score: 123 },
-  { id: 5, firstName: 'Targaryen', score: 123 },
-  { id: 6, firstName: 'Melisandre', score: 123 },
-  { id: 7, firstName: 'Clifford', score: 123 },
-  { id: 8, firstName: 'Frances', score: 123 },
-  { id: 9, firstName: 'Roxie', score: 123 },
-]
+const Alert = (props) => {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -139,57 +119,117 @@ function LeaderBoard(props) {
   const classes = useStyles()
 
   const itemsPerPage = 10
-  const [page, setPage] = React.useState(1)
-  const [noOfPages] = React.useState(Math.ceil(rows.length / itemsPerPage))
+  const [page, setPage] = useState(1)
+  const [rows, setRows] = useState([])
+  const [noOfPages] = useState(Math.ceil(rows.length / itemsPerPage))
+
+  const [waiting, setWaiting] = useState(false)
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+  const [snackbarMessage, setSnackbarMessage] = useState('')
 
   const handleChange = (event, value) => {
     setPage(value)
   }
 
-  return (
-    <Container maxWidth="md">
-      <div className={classes.imgContainer}>
-        <img src={icons.leaderboard} alt="Leaderboard" className={classes.img} />
-      </div>
-      <div className={classes.title}>Leaderboard</div>
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        setWaiting(true)
+        const response = await axios.get('/leaderboard')
+        const { data } = response
+        setRows(data)
+      } catch (err) {
+        setSnackbarMessage('Oh no! Something wrong happened')
+        setSnackbarSeverity('error')
+        setShowSnackbar(true)
+      } finally {
+        setWaiting(false)
+      }
+    }
+    getData()
+  }, [])
 
-      <div className={classes.container}>
-        <div className={classes.sortContainer}>
-          <Button className={classes.sorter}>Score</Button>
-          <Button className={classes.sorter}>Rate</Button>
-          <Button className={classes.sorter}>Win</Button>
+  return (
+    <>
+      <Container maxWidth="md">
+        <div className={classes.imgContainer}>
+          <img src={icons.leaderboard} alt="Leaderboard" className={classes.img} />
         </div>
-        <div className={classes.listContainer}>
-          <List dense compoent="span">
-            {rows.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((row) => (
-              <div className={classes.slotContainer}>
-                <div className={classes.playerInfo}>
-                  <Avatar className={classes.avatar} alt="Avatar Image">
-                    N
-                  </Avatar>
-                  <div className={classes.slot}>{row.firstName}</div>
-                </div>
-                <div className={classes.score}>{row.score}</div>
+        <div className={classes.title}>Leaderboard</div>
+
+        <div className={classes.container}>
+          {rows.length === 0 ? (
+            <>
+              <Typography variant="h5" style={{ color: 'white', marginTop: 60 }}>
+                No results on the leaderboard :(
+              </Typography>
+            </>
+          ) : (
+            <>
+              <div className={classes.sortContainer}>
+                <Button className={classes.sorter}>Score</Button>
+                <Button className={classes.sorter}>Rate</Button>
+                <Button className={classes.sorter}>Win</Button>
               </div>
-            ))}
-          </List>
-          <Divider />
-          <Box component="span">
-            <Pagination
-              count={noOfPages}
-              page={page}
-              onChange={handleChange}
-              defaultPage={1}
-              color="secondary"
-              size="large"
-              showFirstButton
-              showLastButton
-              classes={{ ul: classes.paginator, root: classes.paginatorContainer }}
-            />
-          </Box>
+              <div className={classes.listContainer}>
+                <>
+                  <List dense compoent="span">
+                    {rows.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((row, index) => (
+                      <div
+                        className={classes.slotContainer}
+                        style={{
+                          backgroundColor: row?.uid !== undefined ? '#fff5d7' : '#ffd7e5',
+                        }}
+                      >
+                        <div className={classes.playerInfo}>
+                          <Avatar className={classes.avatar} alt="Avatar Image">
+                            {index + 1}
+                          </Avatar>
+                          <div className={classes.slot}>{row.name}</div>
+                        </div>
+                        <div className={classes.score}>{row.points}</div>
+                      </div>
+                    ))}
+                  </List>
+                  <Divider />
+                  <Box component="span">
+                    <Pagination
+                      count={noOfPages}
+                      page={page}
+                      onChange={handleChange}
+                      defaultPage={1}
+                      color="secondary"
+                      size="large"
+                      showFirstButton
+                      showLastButton
+                      classes={{ ul: classes.paginator, root: classes.paginatorContainer }}
+                    />
+                  </Box>
+                </>
+              </div>
+            </>
+          )}
         </div>
-      </div>
-    </Container>
+      </Container>
+      <Backdrop open={waiting} style={{ zIndex: 10000 }}>
+        <CircularProgress />
+      </Backdrop>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={5000}
+        onClose={(event, reason) => {
+          if (reason === 'clickaway') {
+            return
+          }
+          setShowSnackbar(false)
+        }}
+      >
+        <Alert onClose={() => setShowSnackbar(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </>
   )
 }
 
