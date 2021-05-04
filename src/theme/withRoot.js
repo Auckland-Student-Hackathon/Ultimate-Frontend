@@ -32,6 +32,14 @@ const theme = createMuiTheme({
         fontSize: '1.5em',
       },
     },
+    MuiAlert: {
+      filledSuccess: {
+        color: '#29c15d',
+      },
+      filledError: {
+        backgroundColor: '#ff3c58',
+      },
+    },
   },
 })
 
