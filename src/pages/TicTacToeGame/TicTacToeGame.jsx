@@ -1,15 +1,28 @@
-import React from 'react'
+/* eslint-disable no-restricted-syntax */
+import React, { useState, useEffect, useContext } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
-import { Container, Button, Grid } from '@material-ui/core'
+import { Container, Button, Grid, Snackbar, CircularProgress, Backdrop, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
+import { Alert as MuiAlert } from '@material-ui/lab'
+import { socket } from '../../instances'
+import { AuthContext } from '../../context'
 
 import { icons } from '../../utils'
 import { Board } from '../../components'
+
+const Alert = (props) => {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
+  },
+  yourTurn: {
+    textAlign: 'center',
+    marginTop: '3em',
   },
   gameIcon: {
     maxWidth: '10%',
@@ -68,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '1.5em',
   },
   quitButton: {
-    marginTop: '5em',
+    marginTop: '2em',
     width: '20%',
     alignSelf: 'center',
   },
@@ -81,10 +94,86 @@ const TicTacToeGame = (props) => {
   const { location } = props
   const { roomInfo } = location
   const { id } = useParams()
+  const roomId = id
   const imgSrc = icons.ticTacToe
+
+  const [waiting, setWaiting] = useState(true)
+  const [started, setStarted] = useState(false)
+  const [isInitialRender, setIsInitialRender] = useState(true)
+  const AuthObj = useContext(AuthContext)
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [failed, setFailed] = useState(false)
+  const [roomDetails, setRoomDetails] = useState({})
+  const [playerData, setPlayerData] = useState({})
+
+  const [roomObj, setRoomObj] = useState(null)
+  const [isCircle, setIsCircle] = useState(true)
+  const [isMyTurn, setIsMyTurn] = useState(false)
+  const [gameData, setGameData] = useState([])
+  const [winnerFound, setWinnerFound] = useState(false)
+  const [winnerUid, setWinnerUid] = useState('')
+
+  useEffect(() => {
+    socket.emit('getGameStatus', {
+      roomId,
+    })
+
+    socket.on('getGameStatusResponse', (response) => {
+      const { success } = response
+      console.log('getGameStatusResponse', response)
+      if (!success) {
+        setSnackbarSeverity('error')
+        setSnackbarMessage(response.message)
+        setShowSnackbar(true)
+      } else {
+        setRoomObj(response.data)
+        setIsCircle(response.data.firstPlayer === AuthObj.uid)
+        setIsMyTurn(response.data.currentPlayersTurn === AuthObj.uid)
+        setGameData(response.data.gameObject)
+        if (isInitialRender) {
+          setIsInitialRender(false)
+          setWaiting(false)
+        }
+      }
+    })
+
+    socket.on('gameMoveResponse', (response) => {
+      const { data } = response
+      setRoomObj(data)
+      setIsMyTurn(data.currentPlayersTurn === AuthObj.uid)
+      setGameData(data.gameObject)
+    })
+
+    socket.on('gameWinnerFound', (response) => {
+      const newWinnerUid = response.winner
+      const userWon = newWinnerUid === AuthObj.uid
+      if (userWon) {
+        history.push('/win')
+      } else {
+        history.push('/lose')
+      }
+      setWinnerUid(newWinnerUid)
+      setWinnerFound(true)
+    })
+
+    return () => {
+      socket.removeAllListeners()
+    }
+  }, [])
 
   const handleReturn = () => {
     history.goBack()
+  }
+
+  const handleSelectMove = (index) => {
+    if (gameData[index - 1].empty && isMyTurn) {
+      socket.emit('gameMove', {
+        roomId,
+        index,
+      })
+    }
   }
 
   return (
@@ -96,19 +185,48 @@ const TicTacToeGame = (props) => {
         </Button>
       </div>
 
+      <div className={classes.yourTurn}>
+        {isMyTurn ? (
+          <Typography variant="h5" style={{ color: 'white' }}>
+            {`It is your turn! You are ${isCircle ? 'circle' : 'cross'}, please make a move.`}
+          </Typography>
+        ) : (
+          <Typography variant="h5" style={{ color: 'white' }}>
+            Waiting for your opponent...
+          </Typography>
+        )}
+      </div>
+
       <div className={classes.gameStateContainer}>
         <Board />
         <div className={classes.gameState}>
-          <div className={classes.level}>Waiting...</div>
+          <div className={classes.level}>One More!</div>
           <div className={classes.timer}>
-            <div>1:21</div>
+            <div>2:00</div>
           </div>
+          <Button className={classes.quitButton} onClick={handleReturn}>
+            X
+          </Button>
         </div>
-      </div>
 
-      <Button className={classes.quitButton} onClick={handleReturn}>
-        X
-      </Button>
+        <Backdrop open={waiting} style={{ zIndex: 10000 }}>
+          <CircularProgress />
+        </Backdrop>
+        <Snackbar
+          open={showSnackbar}
+          autoHideDuration={5000}
+          onClose={(event, reason) => {
+            if (reason === 'clickaway') {
+              return
+            }
+            setShowSnackbar(false)
+          }}
+        >
+          <Alert onClose={() => setShowSnackbar(false)} severity={snackbarSeverity}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </div>
     </Container>
   )
 }
