@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     marginTop: '3em',
     alignItems: 'center',
+    justifyContent: 'center',
     minHeight: '30vh',
   },
   mainboard: {
@@ -52,6 +53,8 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'Acme',
     margin: '1em 0',
     marginTop: '2em',
+    width: '4em',
+    textAlign: 'center',
   },
   timer: {
     display: 'flex',
@@ -94,11 +97,9 @@ const TicTacToeGame = (props) => {
       </div>
 
       <div className={classes.gameStateContainer}>
-        <Grid container align="center" justify="center" maxWidth="xs" className={classes.mainboard}>
-          <Board />
-        </Grid>
+        <Board />
         <div className={classes.gameState}>
-          <div className={classes.level}>One More!</div>
+          <div className={classes.level}>Waiting...</div>
           <div className={classes.timer}>
             <div>1:21</div>
           </div>
