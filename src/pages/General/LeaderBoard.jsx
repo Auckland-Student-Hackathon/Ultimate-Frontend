@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
 import {
   List,
   makeStyles,
@@ -27,6 +28,28 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row-reverse',
     justifyContent: 'center',
+  },
+  logoBar: {
+    position: 'absolute',
+    right: 20,
+    top: 0,
+    margin: '1em 0',
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  menuButton: {
+    backgroundColor: 'inherit',
+    border: 0,
+    textAlign: 'right',
+    width: '18%',
+  },
+  logoImg: {
+    maxWidth: '80%',
+    '&:hover': {
+      backgroundColor: '#3f414d',
+      borderRadius: 20,
+      cursor: 'pointer',
+    },
   },
   imgContainer: {
     width: '100%',
@@ -117,6 +140,7 @@ const useStyles = makeStyles((theme) => ({
 
 function LeaderBoard(props) {
   const classes = useStyles()
+  const history = useHistory()
 
   const itemsPerPage = 10
   const [page, setPage] = useState(1)
@@ -153,6 +177,15 @@ function LeaderBoard(props) {
   return (
     <>
       <Container maxWidth="md">
+        <div className={classes.logoBar}>
+          <button type="button" onClick={() => history.push('/profile')} className={classes.menuButton}>
+            <img src={icons.profile} alt="Logout" className={classes.logoImg} />
+          </button>
+          <button type="button" onClick={() => history.push('/lobby')} className={classes.menuButton}>
+            <img src={icons.gotoLobby} alt="Leaderboard" className={classes.logoImg} />
+          </button>
+        </div>
+
         <div className={classes.imgContainer}>
           <img src={icons.leaderboard} alt="Leaderboard" className={classes.img} />
         </div>
