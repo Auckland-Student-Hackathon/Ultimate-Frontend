@@ -32,8 +32,6 @@ function Board(props) {
 
   const { board, isCircle, onSelectMove } = props
 
-  console.log(board)
-
   useEffect(() => {
     setGameBoard(board)
     setLoading(false)
@@ -41,14 +39,14 @@ function Board(props) {
 
   const renderSlot = (position) => {
     if (gameBoard[position].empty) {
-      return ' '
+      return ` `
     }
 
     if (gameBoard[position].playerUid === AuthObj.uid) {
-      return isCircle ? 'O' : 'X'
+      return isCircle ? `O` : `X`
     }
 
-    return isCircle ? 'X' : 'O'
+    return isCircle ? `X` : `O`
   }
 
   const renderBoard = () => {
@@ -57,16 +55,23 @@ function Board(props) {
     for (let y = 0; y < 3; y += 1) {
       const cols = []
       for (let x = 0; x < 3; x += 1) {
+        const currentPosition = position
         cols.push(
-          <Button className={classes.slot} item xs={11} onClick={() => onSelectMove(position)}>
-            {renderSlot(position)}
+          <Button
+            key={currentPosition}
+            className={classes.slot}
+            item
+            xs={11}
+            onClick={() => onSelectMove(currentPosition + 1)}
+          >
+            {renderSlot(currentPosition)}
           </Button>
         )
 
         position += 1
       }
 
-      rows.push(<div>{cols}</div>)
+      rows.push(<div key={position}>{cols}</div>)
     }
 
     return rows
@@ -86,6 +91,22 @@ function Board(props) {
         <CircularProgress />
       </div>
     )
+
+  if (gameBoard == null || gameBoard.length === 0) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          weight: '100vw',
+        }}
+      >
+        <CircularProgress />
+      </div>
+    )
+  }
 
   return <div className={classes.container}>{renderBoard()}</div>
 }

@@ -127,6 +127,10 @@ const TicTacToeGame = (props) => {
         setSnackbarSeverity('error')
         setSnackbarMessage(response.message)
         setShowSnackbar(true)
+        if (isInitialRender) {
+          setIsInitialRender(false)
+          setWaiting(false)
+        }
       } else {
         setRoomObj(response.data)
         setIsCircle(response.data.firstPlayer === AuthObj.uid)
@@ -148,6 +152,9 @@ const TicTacToeGame = (props) => {
 
     socket.on('gameWinnerFound', (response) => {
       const newWinnerUid = response.winner
+      if (newWinnerUid === 'draw') {
+        return history.push('/draw')
+      }
       const userWon = newWinnerUid === AuthObj.uid
       if (userWon) {
         history.push('/win')
@@ -156,6 +163,7 @@ const TicTacToeGame = (props) => {
       }
       setWinnerUid(newWinnerUid)
       setWinnerFound(true)
+      return null
     })
 
     return () => {
@@ -176,8 +184,6 @@ const TicTacToeGame = (props) => {
     }
   }
 
-  console.log(`GameData${gameData}`)
-
   return (
     <Container maxWidth="md" className={classes.container}>
       <div className={classes.gameListContainer}>
@@ -187,36 +193,38 @@ const TicTacToeGame = (props) => {
         </Button>
       </div>
 
-      <div className={classes.gameStateContainer}>
-        <Board board={gameData} isCircle={isCircle} onSelectMove={handleSelectMove} />
-        <div className={classes.gameState}>
-          <div className={classes.level}>{isMyTurn ? 'Your turn!' : 'Waiting...'}</div>
-          <div className={classes.timer}>
-            <div>2:00</div>
+      {isInitialRender ? null : (
+        <div className={classes.gameStateContainer}>
+          <Board board={gameData} isCircle={isCircle} onSelectMove={handleSelectMove} />
+          <div className={classes.gameState}>
+            <div className={classes.level}>{isMyTurn ? 'Your turn!' : 'Waiting...'}</div>
+            <div className={classes.timer}>
+              <div>2:00</div>
+            </div>
+            <Button className={classes.quitButton} onClick={handleReturn}>
+              X
+            </Button>
           </div>
-          <Button className={classes.quitButton} onClick={handleReturn}>
-            X
-          </Button>
         </div>
+      )}
 
-        <Backdrop open={waiting} style={{ zIndex: 10000 }}>
-          <CircularProgress />
-        </Backdrop>
-        <Snackbar
-          open={showSnackbar}
-          autoHideDuration={5000}
-          onClose={(event, reason) => {
-            if (reason === 'clickaway') {
-              return
-            }
-            setShowSnackbar(false)
-          }}
-        >
-          <Alert onClose={() => setShowSnackbar(false)} severity={snackbarSeverity}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </div>
+      <Backdrop open={waiting} style={{ zIndex: 10000 }}>
+        <CircularProgress />
+      </Backdrop>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={5000}
+        onClose={(event, reason) => {
+          if (reason === 'clickaway') {
+            return
+          }
+          setShowSnackbar(false)
+        }}
+      >
+        <Alert onClose={() => setShowSnackbar(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   )
 }

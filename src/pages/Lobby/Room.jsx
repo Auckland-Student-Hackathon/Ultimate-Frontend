@@ -119,6 +119,7 @@ const Room = (props) => {
   const [roomDetails, setRoomDetails] = useState(null)
   const [ownerUid, setOwnerUid] = useState('')
   const [currentScore, setCurrentScore] = useState('0 - 0')
+  const [isReady, setIsReady] = useState(false)
 
   const { location } = props
   const { roomInfo } = location
@@ -246,9 +247,16 @@ const Room = (props) => {
   const handleStartGame = () => {
     // Check if all players are ready
     // Client and server side check :)
-    socket.emit('startGame', {
-      roomId,
-    })
+    if (gameType === 'Puzzle') {
+      // Puzzle is still in development
+      setSnackbarSeverity('error')
+      setShowSnackbar(true)
+      setSnackbarMessage('Sorry the Puzzle is still in development.')
+    } else {
+      socket.emit('startGame', {
+        roomId,
+      })
+    }
   }
 
   const renderPlayer = () => {
@@ -376,9 +384,10 @@ const Room = (props) => {
                   socket.emit('playerReady', {
                     roomId,
                   })
+                  setIsReady(true)
                 }}
               >
-                Ready
+                {isReady ? 'Already Ready' : 'Ready'}
               </Button>
             )}
 
