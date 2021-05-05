@@ -34,7 +34,7 @@ const theme = createMuiTheme({
     },
     MuiAlert: {
       filledSuccess: {
-        color: '#29c15d',
+        color: 'white',
       },
       filledError: {
         backgroundColor: '#ff3c58',

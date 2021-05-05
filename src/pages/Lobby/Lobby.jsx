@@ -1,22 +1,18 @@
-import React from 'react'
+/* eslint-disable no-restricted-syntax */
+import React, { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
-import { Button, Typography, Container, GridList } from '@material-ui/core'
+import { Button, Typography, Container, GridList, Snackbar, Backdrop, CircularProgress } from '@material-ui/core'
+import { Alert as MuiAlert } from '@material-ui/lab'
+import { socket } from '../../instances'
 
 import { icons } from '../../utils'
 
-const rooms = [
-  { game: 'puzzles', owner: 'Nate', code: 'JUHHG' },
-  { game: 'puzzles', owner: 'Hiko', code: 'JUHHG' },
-  { game: 'tic-tac-toe', owner: 'Lol', code: 'JUHHG' },
-  { game: 'puzzles', owner: 'Nan', code: 'JUHHG' },
-  { game: 'puzzles', owner: 'None', code: 'JUHHG' },
-  { game: 'tic-tac-toe', owner: 'Nate', code: 'JUHHG' },
-  { game: 'puzzles', owner: 'Nate', code: 'JUHHG' },
-  { game: 'puzzles', owner: 'Nate', code: 'JUHHG' },
-  { game: 'tic-tac-toe', owner: 'Nate', code: 'JUHHG' },
-]
+const Alert = (props) => {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <MuiAlert elevation={6} variant="filled" {...props} />
+}
 
 const useStyle = makeStyles((theme) => ({
   logoBar: {
@@ -107,8 +103,18 @@ function Lobby(props) {
   const classes = useStyle()
   const history = useHistory()
 
+  const [waiting, setWaiting] = useState(true)
+  const [initialRender, setInitialRender] = useState(true)
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [rooms, setRooms] = useState([])
+
   const handleJoinRoom = (room) => {
-    history.push({ pathname: `room/${room.code}`, roomInfo: room })
+    setWaiting(true)
+    socket.emit('joinRoom', {
+      roomId: room.code,
+    })
   }
 
   const goToLeaderboard = () => {
@@ -119,13 +125,72 @@ function Lobby(props) {
     history.push('/profile')
   }
 
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('socket id', socket.id)
+      console.log('socket is connected?', socket.connected)
+    })
+    socket.io.on('reconnect_attemp', () => {
+      console.log('client is attempting to reconnect')
+    })
+    socket.io.on('reconnect', () => {
+      console.log('client has reconnected with the server')
+    })
+
+    socket.on('joinRoomResponse', (response) => {
+      if (response.success) {
+        setWaiting(false)
+        history.push(`/room/${response.roomId}`)
+      } else {
+        setSnackbarSeverity('error')
+        setSnackbarMessage(response.message)
+        setShowSnackbar(true)
+      }
+    })
+
+    socket.on('createRoomResponse', (response) => {
+      if (response.success) {
+        setSnackbarSeverity('success')
+        history.push(`/room/${response.roomId}`)
+      } else {
+        setSnackbarSeverity('error')
+        setSnackbarMessage(response.message)
+        setShowSnackbar(true)
+      }
+    })
+
+    socket.on('roomDetailsResponse', (response) => {
+      const newList = []
+      for (const [key, value] of Object.entries(response)) {
+        newList.push({
+          game: value?.mode,
+          owner: value?.players[0]?.name || '',
+          code: key,
+        })
+      }
+      setRooms(newList)
+      if (initialRender) {
+        setWaiting(false)
+        setInitialRender(false)
+      }
+    })
+
+    const cancelFetchRoom = setInterval(() => {
+      socket.emit('roomDetails')
+    }, 3000)
+
+    return () => {
+      socket.removeAllListeners()
+      clearInterval(cancelFetchRoom)
+    }
+  }, [])
+
   const renderRooms = (allRooms) => {
     return allRooms.map((room) => {
-      const imgSrc = room.game === 'tic-tac-toe' ? icons.ticTacToe : icons.puzzle
+      const imgSrc = room.game === 'Tic-Tac-Toe' ? icons.ticTacToe : icons.puzzle
       return (
         <Grid container justify="start" alignItems="center" item xs={6}>
           <div>
-            {room.game === 'tic-tac-toe? '}
             <img src={imgSrc} alt="game icon" className={classes.logoGame} />
             <Button className={classes.roomContainer} onClick={() => handleJoinRoom(room)}>
               <div className={classes.roomInfoRight}>
@@ -141,32 +206,72 @@ function Lobby(props) {
   }
 
   return (
-    <div>
-      <div className={classes.logoBar}>
-        <button type="button" onClick={goToProfile} className={classes.menuButton}>
-          <img src={icons.profile} alt="profile" className={classes.logoImg} />
-        </button>
-        <button type="button" onClick={goToLeaderboard} className={classes.menuButton}>
-          <img src={icons.leaderboard} alt="leaderboard" className={classes.logoImg} />
-        </button>
-      </div>
-
-      <Container component="main" maxWidth="lg">
-        <div className={classes.paper}>
-          <Typography variant="h4" className={classes.title}>
-            HAVE FUN!
-          </Typography>
-
-          <GridList cellHeight={180} className={classes.gridList}>
-            {renderRooms(rooms)}
-          </GridList>
-
-          <div className={classes.button}>
-            <Button>Create new Room</Button>
-          </div>
+    <>
+      <div>
+        <div className={classes.logoBar}>
+          <button type="button" onClick={goToProfile} className={classes.menuButton}>
+            <img src={icons.profile} alt="profile" className={classes.logoImg} />
+          </button>
+          <button type="button" onClick={goToLeaderboard} className={classes.menuButton}>
+            <img src={icons.leaderboard} alt="leaderboard" className={classes.logoImg} />
+          </button>
         </div>
-      </Container>
-    </div>
+
+        <Container component="main" maxWidth="lg">
+          <div className={classes.paper}>
+            <Typography variant="h4" className={classes.title}>
+              HAVE FUN!
+            </Typography>
+
+            {rooms.length === 0 ? (
+              <div
+                style={{
+                  textAlign: 'center',
+                  width: '100%',
+                }}
+              >
+                <Typography variant="h5" style={{ color: 'white' }}>
+                  No rooms are available so far. Create one!
+                </Typography>
+              </div>
+            ) : (
+              <>
+                <GridList cellHeight={180} className={classes.gridList}>
+                  {renderRooms(rooms)}
+                </GridList>
+              </>
+            )}
+
+            <div className={classes.button}>
+              <Button
+                onClick={() => {
+                  socket.emit('createRoom')
+                }}
+              >
+                Create new Room
+              </Button>
+            </div>
+          </div>
+        </Container>
+      </div>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={5000}
+        onClose={(event, reason) => {
+          if (reason === 'clickaway') {
+            return
+          }
+          setShowSnackbar(false)
+        }}
+      >
+        <Alert onClose={() => setShowSnackbar(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+      <Backdrop open={waiting} style={{ zIndex: 10000 }}>
+        <CircularProgress />
+      </Backdrop>
+    </>
   )
 }
 

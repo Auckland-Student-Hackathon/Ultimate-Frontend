@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     margin: '4em',
   },
   score: {
-    color: '#ff881b',
+    color: '#d4fbff',
     fontSize: '2.5em',
     marginRight: '2em',
   },
@@ -35,18 +35,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-function LoseGame(props) {
+function DrawGame(props) {
   const classes = useStyles()
 
   return (
     <Container className={classes.container}>
       <Typography variant="h3" className={classes.title}>
-        OH NO, YOU LOSE...
+        WOW, YOU DRAW!
       </Typography>
 
       <div className={classes.scoreCointainer}>
-        <div className={classes.score}>-20 SCORES</div>
-        <img src={icons.lose} alt="Win" className={classes.img} />
+        <div className={classes.score}>0 SCORES</div>
+        <img src={icons.draw} alt="Win" className={classes.img} />
       </div>
 
       <Link href="/lobby" className={classes.goLink} underline="none">
@@ -56,4 +56,4 @@ function LoseGame(props) {
   )
 }
 
-export default LoseGame
+export default DrawGame

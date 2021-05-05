@@ -1,15 +1,24 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import useSound from 'use-sound'
 
 import './App.css'
+import backgroundMusic from '../assets/sound/lazy.mp3'
 import withRoot from '../theme/withRoot'
 import { Login, Register } from './Auth'
 import { Welcome, LeaderBoard, Profile } from './General'
 import { Lobby, Room } from './Lobby'
-import { RunGame, WinGame, LoseGame } from './PuzzleGame'
+import { RunGame, WinGame, LoseGame, DrawGame } from './PuzzleGame'
+import TicTacToeGame from './TicTacToeGame'
 import ProtectedRoute from '../routes'
 
 const App = (props) => {
+  const [play, { stop }] = useSound(backgroundMusic, { volume: 0.5, loop: true })
+
+  useEffect(() => {
+    play()
+  }, [play])
+
   return (
     <Router>
       <Switch>
@@ -23,7 +32,9 @@ const App = (props) => {
         <ProtectedRoute path="/room/:id/puzzle" component={RunGame} />
         <ProtectedRoute path="/win" component={WinGame} />
         <ProtectedRoute path="/lose" component={LoseGame} />
+        <ProtectedRoute path="/draw" component={DrawGame} />
         <ProtectedRoute path="/room/:id" component={Room} />
+        <ProtectedRoute path="/ticTacToe/:id" component={TicTacToeGame} />
         {/* Private */}
       </Switch>
     </Router>
