@@ -22,6 +22,10 @@
 		<a href="#authors">Authors</a>
 </p>
 
+## Backend Repo
+
+https://github.com/Auckland-Student-Hackathon/Ultimate-Backend
+
 ## Demo
 
 https://www.youtube.com/watch?v=THB6hWn4Ldo
