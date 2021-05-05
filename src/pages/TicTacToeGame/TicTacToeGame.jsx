@@ -188,7 +188,7 @@ const TicTacToeGame = (props) => {
       </div>
 
       <div className={classes.gameStateContainer}>
-        <Board board={gameData} isCircle={isCircle} />
+        <Board board={gameData} isCircle={isCircle} onSelectMove={handleSelectMove} />
         <div className={classes.gameState}>
           <div className={classes.level}>{isMyTurn ? 'Your turn!' : 'Waiting...'}</div>
           <div className={classes.timer}>

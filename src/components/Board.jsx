@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 import { Button, CircularProgress, Grid, makeStyles } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 
@@ -29,7 +30,7 @@ function Board(props) {
   const AuthObj = useContext(AuthContext)
   const classes = useStyles()
 
-  const { board, isCircle } = props
+  const { board, isCircle, onSelectMove } = props
 
   console.log(board)
 
@@ -39,7 +40,7 @@ function Board(props) {
   }, [board])
 
   const renderSlot = (position) => {
-    if (!gameBoard[position]) {
+    if (gameBoard[position].empty) {
       return ' '
     }
 
@@ -57,7 +58,7 @@ function Board(props) {
       const cols = []
       for (let x = 0; x < 3; x += 1) {
         cols.push(
-          <Button className={classes.slot} item xs={11}>
+          <Button className={classes.slot} item xs={11} onClick={() => onSelectMove(position)}>
             {renderSlot(position)}
           </Button>
         )
