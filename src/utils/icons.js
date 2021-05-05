@@ -12,6 +12,7 @@ import ticTacToe from '../assets/icons/tic-tac-toe.png'
 import whereToTtart from '../assets/icons/where-to-start.png'
 import win from '../assets/icons/win.png'
 import lose from '../assets/icons/lose.png'
+import draw from '../assets/icons/draw.png'
 import score from '../assets/icons/score.png'
 import profile from '../assets/icons/profile.png'
 import avatar from '../assets/icons/avatar.png'
@@ -31,6 +32,7 @@ const icons = {
   whereToTtart,
   win,
   lose,
+  draw,
   score,
   profile,
   avatar,

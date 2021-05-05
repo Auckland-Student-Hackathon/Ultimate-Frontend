@@ -6,7 +6,7 @@ import withRoot from '../theme/withRoot'
 import { Login, Register } from './Auth'
 import { Welcome, LeaderBoard, Profile } from './General'
 import { Lobby, Room } from './Lobby'
-import { RunGame, WinGame, LoseGame } from './PuzzleGame'
+import { RunGame, WinGame, LoseGame, DrawGame } from './PuzzleGame'
 import TicTacToeGame from './TicTacToeGame'
 import ProtectedRoute from '../routes'
 
@@ -24,6 +24,7 @@ const App = (props) => {
         <ProtectedRoute path="/room/:id/puzzle" component={RunGame} />
         <ProtectedRoute path="/win" component={WinGame} />
         <ProtectedRoute path="/lose" component={LoseGame} />
+        <ProtectedRoute path="/draw" component={DrawGame} />
         <ProtectedRoute path="/room/:id" component={Room} />
         <ProtectedRoute path="/ticTacToe/:id" component={TicTacToeGame} />
         {/* Private */}

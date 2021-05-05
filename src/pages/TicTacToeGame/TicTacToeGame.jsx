@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
   },
   quitButton: {
     marginTop: '2em',
-    width: '20%',
+    width: '5em',
     alignSelf: 'center',
   },
 }))
@@ -161,7 +161,7 @@ const TicTacToeGame = (props) => {
     return () => {
       socket.removeAllListeners()
     }
-  }, [])
+  }, [AuthObj.uid, history, isInitialRender, roomId])
 
   const handleReturn = () => {
     history.goBack()
@@ -176,6 +176,8 @@ const TicTacToeGame = (props) => {
     }
   }
 
+  console.log(`GameData${gameData}`)
+
   return (
     <Container maxWidth="md" className={classes.container}>
       <div className={classes.gameListContainer}>
@@ -185,22 +187,10 @@ const TicTacToeGame = (props) => {
         </Button>
       </div>
 
-      <div className={classes.yourTurn}>
-        {isMyTurn ? (
-          <Typography variant="h5" style={{ color: 'white' }}>
-            {`It is your turn! You are ${isCircle ? 'circle' : 'cross'}, please make a move.`}
-          </Typography>
-        ) : (
-          <Typography variant="h5" style={{ color: 'white' }}>
-            Waiting for your opponent...
-          </Typography>
-        )}
-      </div>
-
       <div className={classes.gameStateContainer}>
-        <Board />
+        <Board board={gameData} isCircle={isCircle} />
         <div className={classes.gameState}>
-          <div className={classes.level}>One More!</div>
+          <div className={classes.level}>{isMyTurn ? 'Your turn!' : 'Waiting...'}</div>
           <div className={classes.timer}>
             <div>2:00</div>
           </div>
