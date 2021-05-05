@@ -49,7 +49,7 @@ function DrawGame(props) {
         <img src={icons.draw} alt="Win" className={classes.img} />
       </div>
 
-      <Link href="./room" className={classes.goLink} underline="none">
+      <Link href="/lobby" className={classes.goLink} underline="none">
         <Button className={classes.button}>Okay</Button>
       </Link>
     </Container>
