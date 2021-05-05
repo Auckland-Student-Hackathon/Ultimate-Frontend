@@ -1,6 +1,6 @@
 <h1 align="center">
 	<br>
-	<a height="200" href="#" target="_blank" alt="Link to application"><img src="https://i.imgur.com/jSRNkXH.jpg" alt="Random image" width="200"></a>
+	<a height="200" href="#" target="_blank" alt="Link to application"><img src="https://github.com/Auckland-Student-Hackathon/Ultimate-Frontend/blob/main/swords.png" alt="Ultimate Game Center - Image" width="200" height="200"></a>
 	<br>
 	<br>
 	<p>Ultimate Game Center</p>
@@ -19,16 +19,22 @@
 		<a href="#key-features">Key Features</a> •
 		<a href="#local-instance">Local Instance</a> •
 		<a href="#license">License</a> •
-		<a href="#author">Author</a>
+		<a href="#authors">Authors</a>
 </p>
 
 ## Demo
 
-https://youtu.be/TAePkx2504o
+https://www.youtube.com/watch?v=THB6hWn4Ldo
 
-## How To Use
+## Deploy link
 
-Go to https://perfectdatematch.herokuapp.com/
+Frontend URL: https://ultimate-game-center.herokuapp.com/ <br />
+Server URL: https://ultimate-game-center-backend.herokuapp.com/ <br />
+Server Documentation: https://ultimate-game-center-backend.herokuapp.com/docs/
+
+## How To Play
+
+Go to https://ultimate-game-center.herokuapp.com/
 
 - Create account
 - Enter lobby
@@ -38,8 +44,8 @@ Go to https://perfectdatematch.herokuapp.com/
 ## Local Instance
 
 ```sh
-git clone https://github.com/Auckland-Student-Hackathon/Ultimate-Frontend.git ./frontend
-git clone https://github.com/Auckland-Student-Hackathon/Ultimate-Backend.git ./backend
+git clone https://github.com/Auckland-Student-Hackathon/Ultimate-Frontend.git
+git clone https://github.com/Auckland-Student-Hackathon/Ultimate-Backend.git
 ```
 
 and then
@@ -79,7 +85,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## Authors
 
-> LinkedIn [Taylor Tran](www.linkedin.com/in/taylor-tran-0024) &nbsp;&middot;&nbsp;
-> Github [@teinnt](https://github.com/teinnt) &nbsp;&middot;&nbsp;
-> LinkedIn [Bob Liou](httpshttps://www.linkedin.com/in/bob-liou/) &nbsp;&middot;&nbsp;
-> Github [@BobTheSoftwareDeveloper](https://github.com/BobTheSoftwareDeveloper)
+> LinkedIn [Bob Liou](https://www.linkedin.com/in/bob-liou/) &nbsp;&middot;&nbsp; <br />
+> Github [@BobTheSoftwareDeveloper](https://github.com/BobTheSoftwareDeveloper) <br />
+> LinkedIn [Taylor Tran](www.linkedin.com/in/taylor-tran-0024) &nbsp;&middot;&nbsp;<br />
+> Github [@teinnt](https://github.com/teinnt) &nbsp;&middot;&nbsp;<br />
